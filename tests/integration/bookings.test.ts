@@ -65,9 +65,9 @@ describe('when token is valid', () => {
     const room = await createRoomWithHotelId(createdHotel.id);
 
     const createdBooking = await createBooking(user.id, room.id);
-    console.log(createdBooking);
+
     const response = await server.get('/booking').set('Authorization', `Bearer ${token}`);
-    console.log(response.body);
+
     expect(response.status).toBe(httpStatus.OK);
 
     expect(response.body).toEqual({
@@ -81,5 +81,14 @@ describe('when token is valid', () => {
         updatedAt: createdBooking.Room.updatedAt.toISOString(),
       },
     });
+  });
+
+  it('should respond with status 404 when no booking is found', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+
+    const response = await server.get('/booking').set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
   });
 });
