@@ -8,10 +8,20 @@ export async function getBookingByUserId(req: AuthenticatedRequest, res: Respons
 
   try {
     const booking = await bookingsService.getBookingByUserId(Number(userId));
-    console.log(booking);
     return res.status(httpStatus.OK).send(booking);
   } catch (error) {
-    console.log(error);
+    next(error);
+  }
+}
+
+export async function createBooking(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const { userId } = req;
+  const { roomId } = req.body;
+
+  try {
+    const bookingId = await bookingsService.createBooking(Number(userId), Number(roomId));
+    return res.status(httpStatus.OK).send(bookingId);
+  } catch (error) {
     next(error);
   }
 }

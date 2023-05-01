@@ -10,4 +10,23 @@ async function getBookingByUserId(userId: number) {
   });
 }
 
-export default { getBookingByUserId };
+async function getRoomCapacity(roomId: number) {
+  return prisma.room.findFirst({
+    where: { id: roomId },
+    select: { capacity: true },
+  });
+}
+
+async function getBookingByRoomId(roomId: number) {
+  return prisma.booking.findMany({
+    where: { Room: { id: roomId } },
+  });
+}
+
+async function createBooking(userId: number, roomId: number) {
+  return prisma.booking.create({
+    data: { userId, roomId },
+  });
+}
+
+export default { getBookingByUserId, createBooking, getRoomCapacity, getBookingByRoomId };

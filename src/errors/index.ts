@@ -5,3 +5,5 @@ export * from './invalid-email-error';
 export * from './not-found-error';
 export * from './unauthorized-error';
 export * from './request-error';
+export * from './required-payment-error';
+export * from './forbidden-error';
