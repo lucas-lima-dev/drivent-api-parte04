@@ -20,7 +20,7 @@ async function verifyBeforeCreateORChangeABooking(userId: number, roomId: number
 
   const bookings = await bookingRepository.getBookingByRoomId(roomId);
 
-  if (room.capacity === bookings.length) {
+  if (room.capacity <= bookings.length) {
     throw forbiddenError();
   }
 }
@@ -41,6 +41,9 @@ async function createBooking(userId: number, roomId: number) {
 
 async function changeABooking(userId: number, roomId: number, bookingId: number) {
   await verifyBeforeCreateORChangeABooking(userId, roomId);
+
+  const booking = await bookingRepository.getUserBooking(userId, bookingId);
+  if (!booking) throw forbiddenError();
 
   const bookingChanged = await bookingRepository.changeABooking(userId, roomId, bookingId);
 
