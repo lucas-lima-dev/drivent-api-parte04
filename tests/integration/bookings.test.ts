@@ -120,7 +120,7 @@ describe('POST /booking', () => {
   });
 
   describe('when token is valid', () => {
-    it('should respond with status 200 and booking data', async () => {
+    it('should respond with status 200 and booking id', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
@@ -131,11 +131,12 @@ describe('POST /booking', () => {
       const createdHotel = await createHotel();
       const room = await createRoomWithHotelId(createdHotel.id);
 
-      const createdBooking = await createBooking(user.id, room.id);
+      // const createdBooking = await createBooking(user.id, room.id);
 
-      const response = await server.get('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: 7 });
-
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+      console.log(response.body);
       expect(response.status).toEqual(httpStatus.OK);
+      expect(response.body).toEqual({ bookingId: expect.any(Number) });
     });
 
     it('should respond with status 403 when user ticket is remote ', async () => {
@@ -198,6 +199,20 @@ describe('POST /booking', () => {
       const response = await server.post(`/booking`).set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
 
       expect(response.status).toEqual(httpStatus.FORBIDDEN);
+    });
+
+    it('should respond with status 404 when room is not found', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const payment = await createPayment(ticket.id, ticketType.price);
+
+      const createdHotel = await createHotel();
+      const response = await server.get('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: 15 });
+
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
   });
 });

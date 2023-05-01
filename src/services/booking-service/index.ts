@@ -8,17 +8,21 @@ async function verifyBeforeCreateORChangeABooking(userId: number, roomId: number
   if (!enrollment) {
     throw notFoundError();
   }
+
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
-  console.log(ticket.status);
 
   if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw forbiddenError();
   }
+
   const room = await bookingRepository.getRoomCapacity(roomId);
+  if (!room) throw notFoundError();
 
   const bookings = await bookingRepository.getBookingByRoomId(roomId);
 
-  if (room.capacity === bookings.length) throw forbiddenError();
+  if (room.capacity === bookings.length) {
+    throw forbiddenError();
+  }
 }
 
 async function getBookingByUserId(userId: number) {
@@ -32,7 +36,14 @@ async function createBooking(userId: number, roomId: number) {
 
   const bookingCreated = await bookingRepository.createBooking(userId, roomId);
 
-  return bookingCreated.id;
+  return bookingCreated;
 }
 
-export default { getBookingByUserId, createBooking };
+async function changeABooking(userId: number, roomId: number, bookingId: number) {
+  await verifyBeforeCreateORChangeABooking(userId, roomId);
+
+  const bookingChanged = await bookingRepository.changeABooking(userId, roomId, bookingId);
+
+  return bookingChanged;
+}
+export default { getBookingByUserId, createBooking, changeABooking };

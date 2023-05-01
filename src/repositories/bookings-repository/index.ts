@@ -29,4 +29,11 @@ async function createBooking(userId: number, roomId: number) {
   });
 }
 
-export default { getBookingByUserId, createBooking, getRoomCapacity, getBookingByRoomId };
+async function changeABooking(userId: number, roomId: number, bookingId: number) {
+  return prisma.booking.update({
+    where: { id: bookingId },
+    data: { userId, roomId },
+  });
+}
+
+export default { getBookingByUserId, createBooking, getRoomCapacity, getBookingByRoomId, changeABooking };
